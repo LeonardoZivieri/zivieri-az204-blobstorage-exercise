@@ -35,11 +35,34 @@ console.timeEnd("downloadBlob");
 
 await setTimeout(1000)
 
+console.log("\n\nGet Container default metadata");
+console.time("getContainerProperties");
+await getContainerProperties(containerName);
+console.timeEnd("getContainerProperties");
+
+await setTimeout(1000)
+
+console.log("\n\nSet Container metadata");
+console.time("setContainerMetadataProperty");
+await setContainerMetadataProperty(containerName, "docType", "textDocuments");
+await setContainerMetadataProperty(containerName, "category", "guidance");
+console.timeEnd("setContainerMetadataProperty");
+
+await setTimeout(1000)
+
+console.log("\n\nGet Container customized metadata");
+console.time("getContainerProperties");
+await getContainerProperties(containerName);
+console.timeEnd("getContainerProperties");
+
+await setTimeout(1000)
+
 console.log("\n\nDelete Container");
 console.time("deleteContainer");
 await deleteContainer(containerName);
 console.timeEnd("deleteContainer");
 
+await setTimeout(1000)
 
 console.log("\n\nFinished!");
 
@@ -127,6 +150,30 @@ async function downloadBlob(containerName, fileName) {
     console.log(`Downloaded ${fileName} content(${downloadBlockBlobResponse.blobType}) ${downloadBuffer.toString("utf-8")}`);
 }
 
+async function getContainerProperties(containerName) {
+    // Get a reference to the container
+    const containerClient = storageBlobClient.getContainerClient(containerName);
+
+    const properties = await containerClient.getProperties();
+
+    console.log(properties.metadata);
+}
+
+async function setContainerMetadataProperty(containerName, metaDataTag, metaDataValue) {
+    // Get a reference to the container
+    const containerClient = storageBlobClient.getContainerClient(containerName);
+
+    // You need to collect the current metadata
+    const { metadata } = await containerClient.getProperties();
+
+    // Set what you need
+    metadata[metaDataTag] = metaDataValue;
+
+    // And save with all values
+    const properties = await containerClient.setMetadata(metadata);
+
+    console.log(properties);
+}
 
 async function deleteContainer(containerName) {
     // Get a reference to the container
